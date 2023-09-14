@@ -117,21 +117,24 @@ class ActionSymmetrizer:
                 self._bone_curves[bone.name] = set()
                 self._bone_curves[sym_name] = set()
 
-        for left_curve in self._action.fcurves:
-            if not left_curve.data_path.startswith("pose.bones[\""):
+        curves: list[bpy.types.FCurve] = list(self._action.fcurves)
+        curves.sort(key=lambda x: (x.data_path, x.array_index))
+
+        for fcurve in curves:
+            if not fcurve.data_path.startswith("pose.bones[\""):
                 continue
 
-            end = left_curve.data_path.index("\"]")
-            bone_name = left_curve.data_path[12:end]
+            end = fcurve.data_path.index("\"]")
+            bone_name = fcurve.data_path[12:end]
 
             if bone_name in self._bone_curves:
-                self._bone_curves[bone_name].add(left_curve)
+                self._bone_curves[bone_name].add(fcurve)
 
         for left_name, right_name in self._sym_name_pairs.items():
             # deleting previously existing curves
             right_curves = self._bone_curves[right_name]
-            for left_curve in right_curves:
-                self._action.fcurves.remove(left_curve)
+            for right_curve in right_curves:
+                self._action.fcurves.remove(right_curve)
 
             right_curves.clear()
 
@@ -145,6 +148,9 @@ class ActionSymmetrizer:
                     index=left_curve.array_index,
                     action_group=right_name)
 
+                right_curve.lock = False
+                right_curve.hide = False
+                right_curve.mute = left_curve.mute
                 right_curve.extrapolation = left_curve.extrapolation
 
                 right_curve.keyframe_points.insert(
@@ -162,6 +168,17 @@ class ActionSymmetrizer:
 
                 right_curves.add(right_curve)
                 self._sym_curve_pairs[left_curve] = right_curve
+
+        for left_curve, right_curve in self._sym_curve_pairs.items():
+            right_group = right_curve.group
+            left_group = left_curve.group
+
+            right_group.lock = False
+            right_group.show_expanded = False
+            right_group.use_pin = False
+
+            if left_group is not None:
+                right_group.mute = left_group.mute
 
     def _prepare(self):
         bpy.ops.object.mode_set(mode='POSE')
@@ -226,6 +243,9 @@ class ActionSymmetrizer:
     def execute(self, context: Context, offset: float):
         self._collect_states(context)
         self._collect_curves()
+
+        context.view_layer.update()
+
         self._prepare()
         self._insert(offset)
         self._cleanup()

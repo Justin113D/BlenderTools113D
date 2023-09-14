@@ -4,7 +4,7 @@ from . import register as reg
 bl_info = {
     "name": "Justin113D's Blender Tools",
     "author": "Justin113D",
-    "version": (1, 0, 1),
+    "version": (1, 0, 2),
     "blender": (3, 6, 0),
     "location": "",
     "description": "Several tools to make life in blender easier",
