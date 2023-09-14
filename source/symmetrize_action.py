@@ -74,10 +74,10 @@ class ActionSymmetrizer:
                 result = 'RIGHT' + base_name
 
         elif lowercase[-1] == 'l' and lowercase[-2] in ['.', '_', '-', ' ']:
-            result[-1] = 'R' if name[-1] == 'L' else 'r'
+            result = result[:-1] + ('R' if name[-1] == 'L' else 'r')
 
         elif lowercase[0] == 'l' and lowercase[1] in ['.', '_', '-', ' ']:
-            result[0] = 'R' if name[0] == 'L' else 'r'
+            result = ('R' if name[0] == 'L' else 'r') + result[1:]
 
         else:
             return None
