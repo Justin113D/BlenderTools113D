@@ -20,8 +20,7 @@ IF EXIST %python% (
 	pip.exe install autopep8
 	pip.exe install pycodestyle
 	pip.exe install pylint
-	pip.exe install pythonnet
-	pip.exe install fake-bpy-module-3.4
+	pip.exe install fake-bpy-module
 
 	echo set up!
 
