@@ -104,9 +104,11 @@ class T113D_OT_BakeCyclicAction(bpy.types.Operator):
         keyframe = T113D_OT_BakeCyclicAction._get_keyframe_before(
             fcurve, real_target_frame)
 
-        if keyframe.interpolation not in ['CONSTANT', 'LINEAR', 'BEZIER']:
+        if (keyframe.co.x != real_target_frame
+                and keyframe.interpolation
+                not in ['CONSTANT', 'LINEAR', 'BEZIER']):
             self._error_message = (
-                f"[{fcurve.data_path}]: Does not repeat on"
+                f"{fcurve.data_path}[{fcurve.array_index}] Does not repeat on"
                 " a dividable interpolation type!"
                 f" See frame {real_target_frame}"
             )
@@ -168,8 +170,8 @@ class T113D_OT_BakeCyclicAction(bpy.types.Operator):
 
         if abs(first_keyframe.co.y - last_keyframe.co.y) > 0.001:
             self._error_message = (
-                f"[{fcurve.data_path}] First and last keyframes"
-                " do not carry the same value!"
+                f"{fcurve.data_path}[{fcurve.array_index}] First and last"
+                " keyframes do not carry the same value!"
             )
             return False
 
